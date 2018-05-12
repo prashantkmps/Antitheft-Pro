@@ -5,7 +5,21 @@ from flask import *
 
 app = Flask(__name__)
 
-# ######################Response Codes########################
+
+# ################ Connection Setup ####################
+
+# light = pin 16 ( GPIO 23 )
+# siren = pin 18 ( GPIO 24 )
+# pir = pin 22 ( GPIO 25 )
+# ServoMotor ( Gas ) = pin 32 ( GPIO 12 )
+# DistanceSensor = pin 38 ( GPIO 10 ), pin 39 ( GPIO 20 )
+# ServoMotor ( Gate ) = pin 7 ( GPIO 4 )
+
+# ################ End  Connection Setup ####################
+
+
+
+# ################ Response Codes ####################
 
 SUCCESS = 'success'
 UNSUCCESS = 'unsuccess'
@@ -13,7 +27,7 @@ YES = 'yes'
 NO = 'no'
 
 
-# ###################### End  Response codes ########################
+# ################ End  Response codes ####################
 
 @app.route('/isenablesystem')
 def isenablethesystem():
@@ -49,7 +63,25 @@ def activate_job():
     def run_job():
         while True:
             print("Run recurring task")
-            time.sleep(0.5)
+            if app.config['enablesystem']:
+                if detectmotion():
+                    light(True)
+                    if not verifyface(30):
+                        alarm(True)
+                        mail()
+                        gas(True)
+                        door(True)
+                        while True:
+                            if not app.config['enablesystem']:
+                                alarm(False)
+                                gas(False)
+                                door(False)
+                                break
+                            time.sleep(0.1)
+                    else:
+                        if islighton():
+                            light(False)
+            time.sleep(0.1)
     threading.Thread(target=run_job).start()
 
 
