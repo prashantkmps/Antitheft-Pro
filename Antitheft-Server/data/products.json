@@ -5,6 +5,14 @@
       "0",
       "ep4sta0b"
     ],
-    "productip":"192.168.43.110:3000"
+    "productip": "localhost",
+    "motionport": "8081",
+    "serverport": "3000",
+    "username": "pi",
+    "password": "raspberry",
+    "homedir": "/home/pi",
+    "serverdir":"/home/pi/Antitheft-Pro",
+    "rootdir": "/",
+    "secretkey":"VA7e5qS/5SSS5~8DF!kKK{KN5/.@4T"
   }
 ]

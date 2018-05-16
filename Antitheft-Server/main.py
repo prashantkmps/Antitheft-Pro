@@ -1,10 +1,12 @@
-import json
 import os
+from multiprocessing import Process
 
 import urllib3
 from flask import *
 from lib.admin import Admin
 from lib.control import Control
+from lib.executeremotecommand import execute_command_remotely
+from lib.getproductdetails import getproductdetails
 from lib.history import History
 from lib.index import Index
 from lib.login import Login
@@ -73,7 +75,10 @@ def admin():
         id = session['id']
         return Admin.show_adminpage(app)
     except KeyError:
-        return make_response(render_template('error.html'), 404)
+        return make_response(
+            render_template("error.html"),
+            404
+        )
 
 
 @app.route('/showmembers')
@@ -116,44 +121,49 @@ def logout():
 
 @app.route('/enablesystem')
 def enablesystem():
-    productip = None
-    with open(os.path.join(app.config['BASE_DIR'], 'data', 'products.json'), 'r') as productfile:
-        products = json.load(productfile)
-    for product in products:
-        if product['productid'] == session['productid']:
-            productip = product['productip']
-            break
+    product = getproductdetails(app)
     http = urllib3.PoolManager()
-    r = http.request('GET', 'http://' + productip + '/enablesystem')
+    r = http.request('GET',
+                     'http://' + product['productip'] + ':' + product['serverport'] + '/enablesystem?secretkey=' +
+                     product['secretkey'])
     return make_response(r.data.decode('utf-8'))
 
 
 @app.route('/disablesystem')
 def disablesystem():
-    productip = None
-    with open(os.path.join(app.config['BASE_DIR'], 'data', 'products.json'), 'r') as productfile:
-        products = json.load(productfile)
-    for product in products:
-        if product['productid'] == session['productid']:
-            productip = product['productip']
-            break
+    product = getproductdetails(app)
     http = urllib3.PoolManager()
-    r = http.request('GET', 'http://' + productip + '/disablesystem')
+    r = http.request('GET',
+                     'http://' + product['productip'] + ':' + product['serverport'] + '/disablesystem?secretkey=' +
+                     product['secretkey'])
     return make_response(r.data.decode('utf-8'))
 
 
 @app.route('/isenablesystem')
 def isenablesystem():
-    productip = None
-    with open(os.path.join(app.config['BASE_DIR'], 'data', 'products.json'), 'r') as productfile:
-        products = json.load(productfile)
-    for product in products:
-        if product['productid'] == session['productid']:
-            productip = product['productip']
-            break
+    product = getproductdetails(app)
     http = urllib3.PoolManager()
-    r = http.request('GET', 'http://' + productip + '/isenablesystem')
+    r = http.request('GET',
+                     'http://' + product['productip'] + ':' + product['serverport'] + '/isenablesystem?secretkey=' +
+                     product['secretkey'])
     return make_response(r.data.decode('utf-8'))
+
+
+@app.route('/startserver')
+def startserver():
+    product = getproductdetails(app)
+    command = 'cd ' + os.path.join(product['serverdir'], 'Antitheft-Client') + ';python3 main.py'
+
+    def executecommandserver():
+        execute_command_remotely(
+            hostname=product['productip'],
+            username=product['username'],
+            password=product['password'],
+            command=command
+        )
+
+    Process(target=executecommandserver).start()
+    return make_response('success')
 
 
 @app.route('/updateuserprofile', methods=['POST'])
@@ -170,7 +180,10 @@ def update_user():
 @app.errorhandler(404)
 def not_found(error):
     print(error)
-    return make_response(render_template('error.html'), 404)
+    return make_response(
+        render_template('error.html'),
+        404
+    )
 
 
 if __name__ == '__main__':

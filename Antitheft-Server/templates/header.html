@@ -14,7 +14,7 @@
                     <li><a href="{{ url_for('index') }}">Home</a></li>
                     {% if session['id'] %}
                         <li><a href="{{ url_for('control') }}">Control</a></li>
-                        <li><a href="{{ url_for('monitoring') }}">Monitoring</a></li>
+                        <li><a href="{{ url_for('monitoring') }}" target="_blank">Monitoring</a></li>
                         <li><a href="{{ url_for('showmembers') }}">Members</a></li>
                         <li><a href="{{ url_for('history') }}">History</a></li>
                         <li><a href="{{ url_for('logout') }}">Logout</a></li>
