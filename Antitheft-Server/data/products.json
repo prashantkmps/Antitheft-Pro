@@ -5,7 +5,7 @@
       "0",
       "ep4sta0b"
     ],
-    "productip": "localhost",
+    "productip": "172.16.81.51",
     "motionport": "8081",
     "serverport": "3000",
     "username": "pi",

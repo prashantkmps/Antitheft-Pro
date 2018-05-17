@@ -1,5 +1,6 @@
 import os
-
+import time
+import threading
 from flask import *
 
 app = Flask(__name__)
@@ -43,10 +44,13 @@ def disablethesystem():
         return resp
 
 
-@app.errorhandler(404)
-def not_found(error):
-    print(error)
-    return make_response(render_template('error.html'), 404)
+@app.before_first_request
+def activate_job():
+    def run_job():
+        while True:
+            print("Run recurring task")
+            time.sleep(0.5)
+    threading.Thread(target=run_job).start()
 
 
 if __name__ == '__main__':
