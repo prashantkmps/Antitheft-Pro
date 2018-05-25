@@ -2,21 +2,27 @@ import os
 import time
 import threading
 from flask import *
+import RPi.GPIO as GPIO
+import multiprocessing
 
 app = Flask(__name__)
 
-
 # ################ Connection Setup ####################
 
-# light = pin 16 ( GPIO 23 )
+# bulb = pin 16 ( GPIO 23 )
 # siren = pin 18 ( GPIO 24 )
 # pir = pin 22 ( GPIO 25 )
 # ServoMotor ( Gas ) = pin 32 ( GPIO 12 )
 # DistanceSensor = pin 38 ( GPIO 10 ), pin 39 ( GPIO 20 )
-# ServoMotor ( Gate ) = pin 7 ( GPIO 4 )
+# ServoMotor ( door ) = pin 7 ( GPIO 4 )
+
+bulbpin = 23
+sirenpin = 24
+pirpin = 25
+gaspin = 12
+doorpin = 4
 
 # ################ End  Connection Setup ####################
-
 
 
 # ################ Response Codes ####################
@@ -28,6 +34,79 @@ NO = 'no'
 
 
 # ################ End  Response codes ####################
+
+# Functions
+
+def detectmotion():
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(pirpin, GPIO.IN)
+
+    try:
+        time.sleep(0.1)  # to stabilize sensor
+        while True:
+            if GPIO.input(pirpin):
+                print("Motion Detected...")
+                return True
+            else:
+                print('no')
+            time.sleep(0.1)  # loop delay, should be less than detection delay
+
+    except:
+        GPIO.cleanup()
+
+
+def bulb(high_or_low):
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(bulbpin, GPIO.OUT)
+    GPIO.output(bulbpin, high_or_low)
+
+
+def siren(high_or_low):
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(sirenpin, GPIO.OUT)
+    GPIO.output(sirenpin, high_or_low)
+
+
+def gas(high_or_low):
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(gaspin, GPIO.OUT)
+    GPIO.output(gaspin, high_or_low)
+
+
+def door(high_or_low):
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(doorpin, GPIO.OUT)
+    GPIO.output(doorpin, high_or_low)
+
+
+def mail_to_owners():
+
+    import socket
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect(("8.8.8.8", 80))
+    print(s.getsockname()[0])
+    x = s.getsockname()[0]
+    s.close()
+
+    import smtplib
+    from email.MIMEMultipart import MIMEMultipart
+    from email.MIMEText import MIMEText
+
+    fromaddr = EMAIL
+    toaddr = "prateekagrawal89760@gmail.com"
+    msg = MIMEMultipart()
+    msg['From'] = fromaddr
+    msg['To'] = toaddr
+    msg['Subject'] = "Motion Detected"
+    body = xmsg.attach(MIMEText(body, 'plain'))
+
+    server = smtplib.SMTP('smtp.gmail.com', 587)
+    server.starttls()
+    server.login(fromaddr, PASSWORD)
+    text = msg.as_string()
+    server.sendmail(fromaddr, toaddr, text)
+    server.quit()
+
 
 @app.route('/isenablesystem')
 def isenablethesystem():
@@ -65,23 +144,23 @@ def activate_job():
             print("Run recurring task")
             if app.config['enablesystem']:
                 if detectmotion():
-                    light(True)
+                    bulb(True)
                     if not verifyface(30):
-                        alarm(True)
-                        mail()
+                        siren(True)
+                        mail_to_owners()
                         gas(True)
                         door(True)
                         while True:
                             if not app.config['enablesystem']:
-                                alarm(False)
+                                siren(False)
                                 gas(False)
                                 door(False)
                                 break
                             time.sleep(0.1)
                     else:
-                        if islighton():
-                            light(False)
-            time.sleep(0.1)
+                        bulb(False)
+            time.sleep(1)
+
     threading.Thread(target=run_job).start()
 
 

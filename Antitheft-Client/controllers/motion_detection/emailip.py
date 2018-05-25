@@ -14,7 +14,7 @@ from email.MIMEText import MIMEText
 
 fromaddr = "prateekagrawal89760@gmail.com"
 
-toaddr = "dmadnawat.43@gmail.com"
+toaddr = ""
 
 msg = MIMEMultipart()
 
