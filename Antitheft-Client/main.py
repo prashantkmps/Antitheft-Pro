@@ -4,6 +4,7 @@ import threading
 from flask import *
 import RPi.GPIO as GPIO
 import multiprocessing
+from twilio.rest import TwilioRestClient
 
 app = Flask(__name__)
 
@@ -98,7 +99,7 @@ def mail_to_owners():
     msg['From'] = fromaddr
     msg['To'] = toaddr
     msg['Subject'] = "Motion Detected"
-    body = xmsg.attach(MIMEText(body, 'plain'))
+    body = msg.attach(MIMEText('hello motion detected', 'plain'))
 
     server = smtplib.SMTP('smtp.gmail.com', 587)
     server.starttls()
@@ -106,6 +107,48 @@ def mail_to_owners():
     text = msg.as_string()
     server.sendmail(fromaddr, toaddr, text)
     server.quit()
+
+
+def call_to_owners():
+	
+	# Twilio phone number goes here. Grab one at https://twilio.com/try-twilio
+	# and use the E.164 format, for example: "+12025551234"
+	TWILIO_PHONE_NUMBER = "+17738255252"
+
+	# list of one or more phone numbers to dial, in "+19732644210" format
+	numbers_list = ["+917464847884", "+919458412853",]
+
+	# URL location of TwiML instructions for how to handle the phone call
+	TWIML_INSTRUCTIONS_URL = \
+	  "http://static.fullstackpython.com/phone-calls-python.xml"
+
+	# replace the placeholder values with your Account SID and Auth Token
+	# found on the Twilio Console: https://www.twilio.com/console
+	client = TwilioRestClient("AC2bb615af88faf946ecb4d1e3c013771e", "74cf75c65a2a39660f6401fbc58aa563")
+
+
+	"""Dials one or more phone numbers from a Twilio phone number."""
+	for number in numbers_list:
+	    print("Dialing " + number)
+	# set the method to "GET" from default POST because Amazon S3 only
+	# serves GET requests on files. Typically POST would be used for apps
+	    client.calls.create(to=number, from_=TWILIO_PHONE_NUMBER, url=TWIML_INSTRUCTIONS_URL, method="GET")
+
+
+def sms_to_owners():
+	# Your Account Sid and Auth Token from twilio.com/console
+	account_sid = 'AC2bb615af88faf946ecb4d1e3c013771e'
+	auth_token = '74cf75c65a2a39660f6401fbc58aa563'
+	client = TwilioRestClient("AC2bb615af88faf946ecb4d1e3c013771e", "74cf75c65a2a39660f6401fbc58aa563")
+
+
+	message = client.messages.create(
+		                      body='Hiii, your belonging is in danger !',
+		                      from_='+17738255252',
+		                      to='+917464847884'
+		                  )
+
+	print(message.sid)
 
 
 @app.route('/isenablesystem')
@@ -148,6 +191,8 @@ def activate_job():
                     if not verifyface(30):
                         siren(True)
                         mail_to_owners()
+                        call_to_owners()
+                        sms_to_owners()
                         gas(True)
                         door(True)
                         while True:
