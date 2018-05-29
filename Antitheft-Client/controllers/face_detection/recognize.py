@@ -6,7 +6,7 @@ recognizer.load('recognizer/trainingData.yml')
 cascadePath = "haarcascade_frontalface_default.xml"
 faceCascade = cv2.CascadeClassifier(cascadePath);
 
-
+found=False
 cam = cv2.VideoCapture(0)
 font = cv2.cv.InitFont(cv2.cv.CV_FONT_HERSHEY_SIMPLEX, 1, 1, 0, 1, 1)
 while True:
@@ -18,20 +18,24 @@ while True:
         Id, conf = recognizer.predict(gray[y:y+h,x:x+w])
         if(conf<50):
             if(Id==1):
-                Id="PUSHKAL"
+                Id="PRATEEK"
+                found=True
+                print(Id)
+                break
             elif(Id==2):
-                Id="DEBJANI GHOSH"
-            elif(Id==3):
-                Id="NEERAJ AGRAWAL"
-            elif(Id==4):
-                Id="ANAND JALAL"
-            elif(Id==5):
-                Id="NAVEEN PRAKASH"          
+                Id = "PRASHANT"
+                found=True
+                print(Id)
+                break
         else:
            Id="Unknown"
-        cv2.cv.PutText(cv2.cv.fromarray(im),str(Id), (x,y+h),font, 255)
-    cv2.imshow('im',im) 
+        #cv2.cv.PutText(cv2.cv.fromarray(im),str(Id), (x,y+h),font, 255)
+    #cv2.imshow('im',im)
     if cv2.waitKey(10) & 0xFF==ord('q'):
         break
-cam.release()
-cv2.destroyAllWindows()
+if found:
+    cam.release()
+    cv2.destroyAllWindows()
+    return True
+else:
+    return False
