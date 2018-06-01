@@ -29,13 +29,14 @@ while True:
                 break
         else:
            Id="Unknown"
-        #cv2.cv.PutText(cv2.cv.fromarray(im),str(Id), (x,y+h),font, 255)
-    #cv2.imshow('im',im)
+        cv2.cv.PutText(cv2.cv.fromarray(im),str(Id), (x,y+h),font, 255)
+    cv2.imshow('im',im)
     if cv2.waitKey(10) & 0xFF==ord('q'):
         break
 if found:
+    print "Yes"
     cam.release()
     cv2.destroyAllWindows()
-    return True
+ 
 else:
-    return False
+    print "No"    

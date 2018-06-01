@@ -1,10 +1,10 @@
 import os
 import time
 import threading
-from flask import *
+
 import RPi.GPIO as GPIO
 import multiprocessing
-from twilio.rest import TwilioRestClient
+
 import cv2
 import numpy as np
 
@@ -13,8 +13,11 @@ from email.MIMEMultipart import MIMEMultipart
 from email.MIMEText import MIMEText
 import signal
 
+EMAIL = 'proantitheft@gmail.com'
+PASSWORD = 'sciencesciences8307'
+BASE_DIR = os.path.dirname(os.path.realpath(__file__))
+enablesystem=True
 
-app = Flask(__name__)
 
 # ################ Connection Setup ####################
 
@@ -32,17 +35,6 @@ gaspin = 12
 doorpin = 4
 
 # ################ End  Connection Setup ####################
-
-
-# ################ Response Codes ####################
-
-SUCCESS = 'success'
-UNSUCCESS = 'unsuccess'
-YES = 'yes'
-NO = 'no'
-
-
-# ################ End  Response codes ####################
 
 # Functions
 
@@ -72,121 +64,88 @@ def detectmotion():
         GPIO.cleanup()
 
 
-def bulb(high_or_low):
+def gpio_high(pinno):
+    pinno=int(pinno)
+    print('high=', pinno)
     GPIO.setmode(GPIO.BCM)
-    GPIO.setup(bulbpin, GPIO.OUT)
-    GPIO.output(bulbpin, high_or_low)
+    GPIO.setup(pinno, GPIO.OUT)
+    GPIO.output(pinno, GPIO.HIGH)
 
 
-def siren(high_or_low):
+def gpio_low(pinno):
+    pinno=int(pinno)
+    print('low=',pinno)
     GPIO.setmode(GPIO.BCM)
-    GPIO.setup(sirenpin, GPIO.OUT)
-    GPIO.output(sirenpin, high_or_low)
-
-
-def gas(high_or_low):
-    GPIO.setmode(GPIO.BCM)
-    GPIO.setup(gaspin, GPIO.OUT)
-    GPIO.output(gaspin, high_or_low)
-
-
-def door(high_or_low):
-    GPIO.setmode(GPIO.BCM)
-    GPIO.setup(doorpin, GPIO.OUT)
-    GPIO.output(doorpin, high_or_low)
+    GPIO.setup(pinno, GPIO.OUT)
+    GPIO.output(pinno, GPIO.LOW)
 
 
 def mail_to_owners():
-    import socket
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.connect(("8.8.8.8", 80))
-    print(s.getsockname()[0])
-    x = s.getsockname()[0]
-    s.close()
+    print('mail_to_owners')
+    # import socket
+    # s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    # s.connect(("8.8.8.8", 80))
+    # print(s.getsockname()[0])
+    # x = s.getsockname()[0]
+    # s.close()
 
-    fromaddr = EMAIL
-    toaddr = "prateekagrawal89760@gmail.com"
-    msg = MIMEMultipart()
-    msg['From'] = fromaddr
-    msg['To'] = toaddr
-    msg['Subject'] = "Motion Detected"
-    body = msg.attach(MIMEText('hello motion detected', 'plain'))
+    # fromaddr = EMAIL
+    # toaddr = "prateekagrawal89760@gmail.com"
+    # msg = MIMEMultipart()
+    # msg['From'] = fromaddr
+    # msg['To'] = toaddr
+    # msg['Subject'] = "Motion Detected"
+    # body = msg.attach(MIMEText('hello motion detected', 'plain'))
 
-    server = smtplib.SMTP('smtp.gmail.com', 587)
-    server.starttls()
-    server.login(fromaddr, PASSWORD)
-    text = msg.as_string()
-    server.sendmail(fromaddr, toaddr, text)
-    server.quit()
+    # server = smtplib.SMTP('smtp.gmail.com', 587)
+    # server.starttls()
+    # server.login(fromaddr, PASSWORD)
+    # text = msg.as_string()
+    # server.sendmail(fromaddr, toaddr, text)
+    # server.quit()
 
 
 def call_to_owners():
-    # Twilio phone number goes here. Grab one at https://twilio.com/try-twilio
-    # and use the E.164 format, for example: "+12025551234"
-    TWILIO_PHONE_NUMBER = "+17738255252"
 
-    # list of one or more phone numbers to dial, in "+19732644210" format
-    numbers_list = ["+917464847884", "+919458412853", ]
+    print('called')
+    # # Twilio phone number goes here. Grab one at https://twilio.com/try-twilio
+    # # and use the E.164 format, for example: "+12025551234"
+    # TWILIO_PHONE_NUMBER = "+17738255252"
 
-    # URL location of TwiML instructions for how to handle the phone call
-    TWIML_INSTRUCTIONS_URL = \
-        "http://static.fullstackpython.com/phone-calls-python.xml"
+    # # list of one or more phone numbers to dial, in "+19732644210" format
+    # numbers_list = ["+917464847884", "+919458412853", ]
 
-    # replace the placeholder values with your Account SID and Auth Token
-    # found on the Twilio Console: https://www.twilio.com/console
-    client = TwilioRestClient("AC2bb615af88faf946ecb4d1e3c013771e", "74cf75c65a2a39660f6401fbc58aa563")
+    # # URL location of TwiML instructions for how to handle the phone call
+    # TWIML_INSTRUCTIONS_URL = \
+    #     "http://static.fullstackpython.com/phone-calls-python.xml"
 
-    """Dials one or more phone numbers from a Twilio phone number."""
-    for number in numbers_list:
-        print("Dialing " + number)
-        # set the method to "GET" from default POST because Amazon S3 only
-        # serves GET requests on files. Typically POST would be used for apps
-        client.calls.create(to=number, from_=TWILIO_PHONE_NUMBER, url=TWIML_INSTRUCTIONS_URL, method="GET")
+    # # replace the placeholder values with your Account SID and Auth Token
+    # # found on the Twilio Console: https://www.twilio.com/console
+    # client = TwilioRestClient("AC2bb615af88faf946ecb4d1e3c013771e", "74cf75c65a2a39660f6401fbc58aa563")
+
+    # """Dials one or more phone numbers from a Twilio phone number."""
+    # for number in numbers_list:
+    #     print("Dialing " + number)
+    #     # set the method to "GET" from default POST because Amazon S3 only
+    #     # serves GET requests on files. Typically POST would be used for apps
+    #     client.calls.create(to=number, from_=TWILIO_PHONE_NUMBER, url=TWIML_INSTRUCTIONS_URL, method="GET")
 
 
 def sms_to_owners():
+
+    print('sms')
     # Your Account Sid and Auth Token from twilio.com/console
-    account_sid = 'AC2bb615af88faf946ecb4d1e3c013771e'
-    auth_token = '74cf75c65a2a39660f6401fbc58aa563'
-    client = TwilioRestClient("AC2bb615af88faf946ecb4d1e3c013771e", "74cf75c65a2a39660f6401fbc58aa563")
+    # account_sid = 'AC2bb615af88faf946ecb4d1e3c013771e'
+    # auth_token = '74cf75c65a2a39660f6401fbc58aa563'
+    # client = TwilioRestClient("AC2bb615af88faf946ecb4d1e3c013771e", "74cf75c65a2a39660f6401fbc58aa563")
 
-    message = client.messages.create(
-        body='Hiii, your belonging is in danger !',
-        from_='+17738255252',
-        to='+917464847884'
-    )
+    # message = client.messages.create(
+    #     body='Hiii, your belonging is in danger !',
+    #     from_='+17738255252',
+    #     to='+917464847884'
+    # )
 
-    print(message.sid)
-
-
-@app.route('/isenablesystem')
-def isenablethesystem():
-    if app.secret_key == request.args.get('secretkey'):
-        if app.config['enablesystem']:
-            resp = make_response(YES)
-        else:
-            resp = make_response(NO)
-        resp.headers['Access-Control-Allow-Origin'] = '*'
-        return resp
-
-
-@app.route('/enablesystem')
-def enablethesystem():
-    if app.secret_key == request.args.get('secretkey'):
-        app.config['enablesystem'] = True
-        resp = make_response(SUCCESS)
-        resp.headers['Access-Control-Allow-Origin'] = '*'
-        return resp
-
-
-@app.route('/disablesystem')
-def disablethesystem():
-    if app.secret_key == request.args.get('secretkey'):
-        app.config['enablesystem'] = False
-        resp = make_response(SUCCESS)
-        resp.headers['Access-Control-Allow-Origin'] = '*'
-        return resp
-
+    # print(message.sid)
 
 def verifyface():
     recognizer = cv2.createLBPHFaceRecognizer()
@@ -205,12 +164,12 @@ def verifyface():
             cv2.rectangle(im, (x, y), (x + w, y + h), (225, 0, 0), 2)
             Id, conf = recognizer.predict(gray[y:y + h, x:x + w])
             if (conf < 50):
-                if (Id == 1):
+                if (Id == 101):
                     Id = "PRATEEK"
                     found = True
                     print(Id)
                     break
-                elif (Id == 2):
+                elif (Id == 456):
                     Id = "PRASHANT"
                     found = True
                     print(Id)
@@ -218,7 +177,9 @@ def verifyface():
             else:
                 Id = "Unknown"
             cv2.cv.PutText(cv2.cv.fromarray(im),str(Id), (x,y+h),font, 255)
-        cv2.imshow('im',im)
+        if found:
+            break
+        #cv2.imshow('im',im)
         if cv2.waitKey(10) & 0xFF == ord('q'):
             break
     if found:
@@ -229,50 +190,34 @@ def verifyface():
         return False
 
 
-@app.before_first_request
-def activate_job():
-    def run_job():
-        while True:
-            print("Run recurring task")
-            if app.config['enablesystem']:
-                if detectmotion():
-                    bulb(True)
-                    verified=False
-                    signal.signal(signal.SIGALRM, timeout_handler)
-                    signal.alarm(30)
-                    try:
-                        verified = verifyface()
-                    except TimeoutException:
-                        pass
-                    else:
-                        signal.alarm(0)
-                    if not verified:
-                        siren(True)
-                        mail_to_owners()
-                        call_to_owners()
-                        sms_to_owners()
-                        gas(True)
-                        door(True)
-                        while True:
-                            if not app.config['enablesystem']:
-                                siren(False)
-                                gas(False)
-                                door(False)
-                                break
-                            time.sleep(0.1)
-                    else:
-                        bulb(False)
-            time.sleep(1)
-
-    threading.Thread(target=run_job).start()
-
-
-if __name__ == '__main__':
-    EMAIL = 'proantitheft@gmail.com'
-    PASSWORD = 'sciencesciences8307'
-    BASE_DIR = os.path.dirname(os.path.realpath(__file__))
-
-    app.secret_key = 'VA7e5qS/5SSS5~8DF!kKK{KN5/.@4T'
-    app.config['BASE_DIR'] = BASE_DIR
-    app.config['enablesystem'] = True
-    app.run('0.0.0.0', 3000, True)
+while True:
+    print("Run recurring task")
+    if enablesystem:
+        if detectmotion():
+            gpio_high(pinno=bulbpin)
+            verified=False
+            signal.signal(signal.SIGALRM, timeout_handler)
+            signal.alarm(30)
+            try:
+                verified = verifyface()
+            except TimeoutException:
+                pass
+            else:
+                signal.alarm(0)
+            if not verified:
+                gpio_high(pinno=sirenpin)
+                gpio_high(pinno=gaspin)
+                gpio_high(pinno=doorpin)
+                mail_to_owners()
+                call_to_owners()
+                sms_to_owners()
+                while True:
+                    if not enablesystem:
+                        gpio_low(pinno=sirenpin)
+                        gpio_low(pinno=gaspin)
+                        gpio_low(pinno=doorpin)
+                        break
+                    time.sleep(0.1)
+            else:
+                gpio_low(pinno=bulbpin)
+    time.sleep(1)

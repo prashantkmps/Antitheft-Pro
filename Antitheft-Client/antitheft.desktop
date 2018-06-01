@@ -1,0 +1,7 @@
+[Desktop Entry]
+Terminal=false
+Type=Application
+Name=Antitheft
+Comment=Welcome to Antitheft
+Exec=/home/pi/Antitheft-Pro/Antitheft-Client/startup.py
+StartupNotify=false
