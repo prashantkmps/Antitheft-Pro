@@ -13,10 +13,11 @@ from email.MIMEMultipart import MIMEMultipart
 from email.MIMEText import MIMEText
 import signal
 
+import json
+
 EMAIL = 'proantitheft@gmail.com'
 PASSWORD = 'sciencesciences8307'
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
-enablesystem=True
 
 
 # ################ Connection Setup ####################
@@ -44,6 +45,14 @@ class TimeoutException(Exception):   # Custom exception class
 
 def timeout_handler(signum, frame):   # Custom signal handler
     raise TimeoutException
+
+def enablesystem():
+    data=None
+    with open('settings.json', 'r') as settings_file:
+        data=json.load(settings_file)
+    if data['enablesystem'] == 'true':
+        return True
+    return False
 
 
 def detectmotion():
@@ -82,27 +91,27 @@ def gpio_low(pinno):
 
 def mail_to_owners():
     print('mail_to_owners')
-    # import socket
-    # s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    # s.connect(("8.8.8.8", 80))
-    # print(s.getsockname()[0])
-    # x = s.getsockname()[0]
-    # s.close()
+    import socket
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect(("8.8.8.8", 80))
+    print(s.getsockname()[0])
+    x = s.getsockname()[0]
+    s.close()
 
-    # fromaddr = EMAIL
-    # toaddr = "prateekagrawal89760@gmail.com"
-    # msg = MIMEMultipart()
-    # msg['From'] = fromaddr
-    # msg['To'] = toaddr
-    # msg['Subject'] = "Motion Detected"
-    # body = msg.attach(MIMEText('hello motion detected', 'plain'))
+    fromaddr = EMAIL
+    toaddr = "prateekagrawal89760@gmail.com"
+    msg = MIMEMultipart()
+    msg['From'] = fromaddr
+    msg['To'] = toaddr
+    msg['Subject'] = "Motion Detected"
+    body = msg.attach(MIMEText('hello motion detected', 'plain'))
 
-    # server = smtplib.SMTP('smtp.gmail.com', 587)
-    # server.starttls()
-    # server.login(fromaddr, PASSWORD)
-    # text = msg.as_string()
-    # server.sendmail(fromaddr, toaddr, text)
-    # server.quit()
+    server = smtplib.SMTP('smtp.gmail.com', 587)
+    server.starttls()
+    server.login(fromaddr, PASSWORD)
+    text = msg.as_string()
+    server.sendmail(fromaddr, toaddr, text)
+    server.quit()
 
 
 def call_to_owners():
@@ -191,9 +200,9 @@ def verifyface():
 
 
 while True:
-    print("Run recurring task")
-    if enablesystem:
-        if detectmotion():
+    print("Started Process...")
+    if detectmotion():
+        if enablesystem():
             gpio_high(pinno=bulbpin)
             verified=False
             signal.signal(signal.SIGALRM, timeout_handler)
@@ -212,7 +221,7 @@ while True:
                 call_to_owners()
                 sms_to_owners()
                 while True:
-                    if not enablesystem:
+                    if not enablesystem():
                         gpio_low(pinno=sirenpin)
                         gpio_low(pinno=gaspin)
                         gpio_low(pinno=doorpin)
