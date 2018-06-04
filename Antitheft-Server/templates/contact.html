@@ -1,10 +1,140 @@
+
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+ 
+
+
+
+<style>
+
+
+body {
+    background-image: url(../static/images/lock.jpg);
+       
+   background-size: 100%;
+   opacity: 10;
+   background-blend-mode: difference;
+}
+
+
+input[type=text], select {
+    width: 70%;
+    padding: 12px ;
+    margin: 8px 0;
+    display: inline-block;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    margin-left:15%;
+   
+}
+
+input[type=email], select {
+    width: 70%;
+    padding: 12px ;
+    margin: 10px 0;
+    display: inline-block;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    margin-left:15%;
+}
+input[type=number], select {
+    width: 70%;
+    padding: 12px ;
+    margin: 10px 0;
+    display: inline-block;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    margin-left:15%;
+}
+
+input[type=submit] {
+    width: 20%;
+    background-color:   #696969;
+    color: white;
+    padding: 14px 4px;
+    margin: 8px 0;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+
+    margin-left:40%;
+
+	
+}
+
+
+
+h1 {
+    color: white;
+    text-align: center;
+    font-size:100px;
+}
+
+
+
+</style>
+
+{% include 'commonHeadElements.html' %}
 </head>
 <body>
 
+{% include 'header.html' %}
+ <br>
+<div>
+<form action="/action_page.php">
+   <h1 style="color:White;text-shadow:3px 3px #555;font-size:55px;">Contact Us</h1>
+   <br>
+ 
+ <br>
+ <br>
+<table border=6 width="70%" align=center>
+<tr>
+<td>
+<label for="fname" style="color: Black "; ><h3>First Name</h3></label></td>
+<td>
+<input type="text" id="fname" name="firstname"   placeholder="Your name..">
+</td>
+</tr> 
+<tr>
+<td>
+<label for="number"  style="color:Black"><h3>Mobile number</h3></label></td><td>
+<input type="text" id=:"mobile" name="mobile" placeholder="Your mobile number.."></td></tr>
+<tr>
+<td>
+<label for="email" style="color:Black    "><h3>Email address*:</h3></label></td><td>
+<input type="email" id=:"email" name="email" placeholder="Your email id.."></td></tr>
+
+<tr>
+<td>
+<label for="fname" style="color:Black" ><h3>Comments and Question</h3></label></td>
+<td>
+<input type="text" id="fname" name="firstname"   placeholder="Your comments..">
+</td>
+</tr>
+
+	 
+
+ </table>    
+ <input type="submit" value="Submit" align=centre >
+ <br>
+ <br>
+ <br>
+ <br>
+ <br>
+ <br>
+ <br>
+ <br>
+ <br>
+ <br>
+ <br>
+ <br>
+  </form>
+</div>
+
+{% include 'footer.html' %}
 </body>
 </html>
