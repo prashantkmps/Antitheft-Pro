@@ -2,9 +2,14 @@ import os
 from multiprocessing import Process
 
 import urllib3
+#import smtplib
+#from email.MIMEMultipart import MIMEMultipart
+#from email.MIMEText import MIMEText
+import socket
 from flask import *
 
 from lib.admin import Admin
+
 from lib.control import Control
 from lib.executeremotecommand import execute_command_remotely
 from lib.getproductdetails import getproductdetails
@@ -33,6 +38,39 @@ def update_session(dataobj):
         session['address'] = dataobj.address
     if dataobj.photo:
         session['photo'] = dataobj.photo
+
+
+@app.route('/contact', methods=['POST'])
+def contactUs():
+    name = request.form['firstname']
+    email=request.form['email']
+    print (name)
+
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect(("8.8.8.8", 80))
+    print(s.getsockname()[0])
+    x = s.getsockname()[0]
+    s.close()
+
+    fromaddr = app.config['EMAIL']
+    toaddr = app.config['EMAIL']
+    msg = MIMEMultipart()
+    msg['From'] = fromaddr
+    msg['To'] = toaddr
+    msg['Subject'] = "Contact us"
+    body = msg.attach(MIMEText('This message is from '+email, 'plain'))
+
+    server = smtplib.SMTP('smtp.gmail.com', 587)
+    server.starttls()
+    server.login(fromaddr, app.config['PASSWORD'])
+    text = msg.as_string()
+    server.sendmail(fromaddr, toaddr, text)
+    server.quit()
+
+
+
+    flash('query subijk')
+    return redirect(url_for('index'))
 
 
 @app.route('/')

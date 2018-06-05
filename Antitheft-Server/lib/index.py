@@ -44,3 +44,11 @@ class Index:
             title="Contact | Antitheft Pro",
             app=app
         )
+
+    @staticmethod
+    def show_contactPage(app):
+        return render_template(
+            'contact.html',
+            title="Contact | Antitheft Pro",
+              app=app
+        )
