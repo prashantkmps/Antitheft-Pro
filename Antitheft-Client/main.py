@@ -12,13 +12,13 @@ import smtplib
 from email.MIMEMultipart import MIMEMultipart
 from email.MIMEText import MIMEText
 import signal
+import requests
 
 import json
 
 EMAIL = 'proantitheft@gmail.com'
 PASSWORD = 'sciencesciences8307'
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
-
 
 # ################ Connection Setup ####################
 
@@ -35,21 +35,23 @@ pirpin = 25
 gaspin = 12
 doorpin = 4
 
+
 # ################ End  Connection Setup ####################
 
 # Functions
 
-class TimeoutException(Exception):   # Custom exception class
+class TimeoutException(Exception):  # Custom exception class
     pass
 
 
-def timeout_handler(signum, frame):   # Custom signal handler
+def timeout_handler(signum, frame):  # Custom signal handler
     raise TimeoutException
 
+
 def enablesystem():
-    data=None
+    data = None
     with open('settings.json', 'r') as settings_file:
-        data=json.load(settings_file)
+        data = json.load(settings_file)
     if data['enablesystem'] == 'true':
         return True
     return False
@@ -74,7 +76,7 @@ def detectmotion():
 
 
 def gpio_high(pinno):
-    pinno=int(pinno)
+    pinno = int(pinno)
     print('high=', pinno)
     GPIO.setmode(GPIO.BCM)
     GPIO.setup(pinno, GPIO.OUT)
@@ -82,8 +84,8 @@ def gpio_high(pinno):
 
 
 def gpio_low(pinno):
-    pinno=int(pinno)
-    print('low=',pinno)
+    pinno = int(pinno)
+    print('low=', pinno)
     GPIO.setmode(GPIO.BCM)
     GPIO.setup(pinno, GPIO.OUT)
     GPIO.output(pinno, GPIO.LOW)
@@ -115,7 +117,6 @@ def mail_to_owners():
 
 
 def call_to_owners():
-
     print('called')
     # # Twilio phone number goes here. Grab one at https://twilio.com/try-twilio
     # # and use the E.164 format, for example: "+12025551234"
@@ -141,20 +142,19 @@ def call_to_owners():
 
 
 def sms_to_owners():
-
     print('sms')
-    # Your Account Sid and Auth Token from twilio.com/console
-    # account_sid = 'AC2bb615af88faf946ecb4d1e3c013771e'
-    # auth_token = '74cf75c65a2a39660f6401fbc58aa563'
-    # client = TwilioRestClient("AC2bb615af88faf946ecb4d1e3c013771e", "74cf75c65a2a39660f6401fbc58aa563")
+    url = 'https://smsapi.engineeringtgr.com/send'
+    params = {
+        'Mobile': 7464847884,
+        'Password': 'sciencesciences8307',
+        'Message': 'Chori ho gyi',
+        'To': '7464847884',
+        'Key': 'pratelp8ts0JTaIwMWjuyECrghbn'
+    }
+    r = requests.get(url=url, params=params)
+    data = r.json()
+    print(data)
 
-    # message = client.messages.create(
-    #     body='Hiii, your belonging is in danger !',
-    #     from_='+17738255252',
-    #     to='+917464847884'
-    # )
-
-    # print(message.sid)
 
 def verifyface():
     recognizer = cv2.createLBPHFaceRecognizer()
@@ -185,10 +185,10 @@ def verifyface():
                     break
             else:
                 Id = "Unknown"
-            cv2.cv.PutText(cv2.cv.fromarray(im),str(Id), (x,y+h),font, 255)
+            cv2.cv.PutText(cv2.cv.fromarray(im), str(Id), (x, y + h), font, 255)
         if found:
             break
-        #cv2.imshow('im',im)
+        # cv2.imshow('im',im)
         if cv2.waitKey(10) & 0xFF == ord('q'):
             break
     if found:
@@ -204,7 +204,7 @@ while True:
     if detectmotion():
         if enablesystem():
             gpio_high(pinno=bulbpin)
-            verified=False
+            verified = False
             signal.signal(signal.SIGALRM, timeout_handler)
             signal.alarm(30)
             try:
