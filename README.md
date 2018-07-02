@@ -51,8 +51,7 @@ This project contains Client Machine and Server Machine code-
 
 #### For any info contact me on
 
-[prateekagrawal@gmail.com](mailto://prateekagrawal@gmail.com)
-
-(+91) 7464847884
+prashantkmps@gmail.com
+(+91)9458412843
 
 # Thanks for reading
